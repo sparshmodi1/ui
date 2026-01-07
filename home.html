@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VID2NOTE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* LIGHT */
+      --bg-light: radial-gradient(circle at top, #dbeafe, #a5f3fc);
+      --card-light: rgba(255,255,255,0.9);
+      --text-light: #020617;
+      --btn-light: linear-gradient(135deg, #2563eb, #38bdf8);
+      --btn-light-hover: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+
+      /* DARK */
+      --bg-dark: radial-gradient(circle at top left, #020617, #020617, #0f172a),
+                 linear-gradient(135deg, #7c3aed, #06b6d4);
+      --card-dark: linear-gradient(160deg, rgba(15,23,42,.9), rgba(2,6,23,.95));
+      --text-dark: #e5e7eb;
+      --btn-dark: linear-gradient(135deg, #7c3aed, #06b6d4);
+      --btn-dark-hover: linear-gradient(135deg, #9333ea, #22d3ee);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+      transition: all .3s ease;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg-light);
+      color: var(--text-light);
+      padding: 40px 20px;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body.dark::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(120deg,#7c3aed,#06b6d4,#ec4899,#7c3aed);
+      background-size: 300% 300%;
+      animation: move 18s ease infinite;
+      opacity: .25;
+    }
+
+    @keyframes move {
+      0% {background-position:0% 50%}
+      50% {background-position:100% 50%}
+      100% {background-position:0% 50%}
+    }
+
+    header {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 50px;
+    }
+
+    h1 { font-size: 3rem; font-weight: 800; }
+    .subtitle { opacity: .8; }
+
+    /* 🔄 SWITCH */
+    .theme-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon { opacity: .5; }
+    body.dark .icon.moon,
+    body:not(.dark) .icon.sun { opacity: 1; }
+
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+    }
+
+    .switch input { opacity: 0; }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #cbd5f5;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: .4s;
+    }
+
+    body.dark .slider {
+      background: var(--btn-dark);
+    }
+
+    body.dark .slider::before {
+      transform: translateX(24px);
+    }
+
+    .grid {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 30px;
+    }
+
+    .card {
+      background: var(--card-light);
+      border-radius: 24px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 30px 60px rgba(0,0,0,.15);
+    }
+
+    body.dark .card {
+      background: var(--card-dark);
+    }
+
+    h2 { margin-bottom: 16px; }
+
+    input, textarea {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      margin-bottom: 18px;
+    }
+
+    button.submit {
+      margin-top: auto;
+      padding: 14px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--btn-light);
+      color: white;
+    }
+
+    button.submit:hover {
+      background: var(--btn-light-hover);
+      transform: scale(1.05);
+    }
+
+    body.dark button.submit {
+      background: var(--btn-dark);
+    }
+
+    body.dark button.submit:hover {
+      background: var(--btn-dark-hover);
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div>
+    <h1>VID2NOTE</h1>
+    <p class="subtitle">Turn videos, PDFs & text into smart notes</p>
+  </div>
+
+  <div class="theme-switch">
+    <span class="icon sun">☀️</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle" onclick="toggleTheme()">
+      <span class="slider"></span>
+    </label>
+    <span class="icon moon">🌙</span>
+  </div>
+</header>
+
+<form method="POST" action="{% url 'result' %}">
+  {% csrf_token %}
+  <div class="grid">
+    <div class="card">
+      <h2>🎥 YouTube</h2>
+      <input type="text" name="video_url" placeholder="Paste YouTube link">
+      <button class="submit" type="submit" name="source" value="youtube">Generate</button>
+    </div>
+
+    <div class="card">
+      <h2>📄 PDF</h2>
+      <input type="file" name="pdf_file">
+      <button class="submit" type="submit" name="source" value="pdf">Generate</button>
+    </div>
+
+    <div class="card">
+      <h2>📝 Text</h2>
+      <textarea rows="5" name="text_content" placeholder="Paste text"></textarea>
+      <button class="submit" type="submit" name="source" value="text">Generate</button>
+    </div>
+  </div>
+</form>
+
+<script>
+  (function(){
+    const theme = localStorage.getItem("theme");
+    const toggle = document.getElementById("themeToggle");
+    if(theme==="dark"){
+      document.body.classList.add("dark");
+      toggle.checked = true;
+    }
+  })();
+
+  function toggleTheme(){
+    const isDark = document.body.classList.toggle("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }
+</script>
+</body>
+</html>
